@@ -1,0 +1,88 @@
+#!/usr/bin/env fift -s
+"TonUtil.fif" include
+"Asm.fif" include
+
+// parse CLI
+
+def? $1 { @' $1 } { "build/simple-wallet-transfer" } cond =: file-base  // file path prefix
+def? $2 { @' $2 } { "secrets/simple-wallet" } cond =: secret-base  // secret path prefix
+def? $3 { @' $3 } { "kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM" } cond =: from_address  // from (this) address
+def? $4 { @' $4 } { "EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH" } cond =: to_address  // target address
+def? $5 { @' $5 } { "1" } cond parse-int =: seqno  // seq no
+def? $6 { @' $6 } { "30000000" } cond parse-int =: amount  // nanoton amount
+
+from_address $>smca 0= abort"bad address"
+=: from_flags
+=: from_addr
+=: from_wc
+
+to_address $>smca 0= abort"bad address"
+=: to_flags
+=: to_addr
+=: to_wc
+
+3 =: send_mode
+
+// --------------------- Body: money transfer message + signing ---------------------
+<b
+   seqno 32 u,     // wallet seq_no
+   send_mode 8 u,  // send_mode
+   
+   // body - send money from this wallet to another wallet
+   <b
+      // int_msg_info, ihr_disabled, bounce, bounced, src_address (to be filled by server)
+      b{010000} s, 
+
+      // to_address: address prefix, wc, address
+      b{100} s,
+      to_wc 8  i,
+      to_addr 256 u,
+
+      // init coints + type
+      4 4 u,
+      amount 32 u,
+      b{0} s,
+
+      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104
+      0 104 u,
+
+      // no state init
+      b{0} s,
+      null dict,
+
+      // no body
+      b{0} s,
+      null dict,
+   b> ref,
+b> =: internal_body
+
+
+// signing body
+secret-base +".pk" load-keypair nip =: wallet_pk
+internal_body hashu wallet_pk ed25519_sign_uint =: signature
+
+
+// --------------------- Final external query to Blockchain ---------------------
+
+<b
+   // header: prefix, none from _address (external msg)
+   b{1000} s,
+
+   // from_address: address prefix, wc, address
+   b{100} s,
+   from_wc 8 i,
+   from_addr 256 u,
+
+   // grams importFee = 0
+   0 Gram,
+
+   // no state_init, body as slice
+   b{00} s,
+   signature B,
+   internal_body <s s,
+b>
+
+cr
+2 boc+>B dup Bx. cr
+file-base +"-query.boc" tuck B>file
+."(Saved smart contract creating query to file " type .")" cr

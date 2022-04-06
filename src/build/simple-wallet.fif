@@ -1,0 +1,67 @@
+"Asm.fif" include
+// automatically generated from `./stdlib.fc` `simple-wallet.fc` 
+PROGRAM{
+  DECLPROC recv_internal
+  DECLPROC recv_external
+  85143 DECLMETHOD seqno
+  78748 DECLMETHOD get_public_key
+  109070 DECLMETHOD get_customize
+  recv_internal PROC:<{
+    //  in_msg
+    DROP	// 
+  }>
+  recv_external PROC:<{
+    //  in_msg
+    9 PUSHPOW2	//  in_msg _3=512
+    LDSLICEX	//  signature in_msg
+    DUP	//  signature in_msg cs
+    32 LDU	//  signature in_msg msg_seqno cs
+    c4 PUSH	//  signature in_msg msg_seqno cs _11
+    CTOS	//  signature in_msg msg_seqno cs cs2
+    32 LDU	//  signature in_msg msg_seqno cs stored_seqno cs2
+    256 LDU	//  signature in_msg msg_seqno cs stored_seqno public_key cs2
+    ENDS
+    s3 s1 XCPU	//  signature in_msg public_key cs stored_seqno msg_seqno stored_seqno
+    EQUAL	//  signature in_msg public_key cs stored_seqno _23
+    33 THROWIFNOT
+    s0 s3 XCHG	//  signature stored_seqno public_key cs in_msg
+    HASHSU	//  signature stored_seqno public_key cs _26
+    s0 s4 s2 XC2PU	//  cs stored_seqno public_key _26 signature public_key
+    CHKSIGNU	//  cs stored_seqno public_key _27
+    34 THROWIFNOT
+    ACCEPT
+    s2 s0 XCPU	//  public_key stored_seqno cs cs
+    SREFS	//  public_key stored_seqno cs _32
+    IF:<{	//  public_key stored_seqno cs
+      8 LDU	//  public_key stored_seqno mode cs
+      LDREF	//  public_key stored_seqno mode _37 cs
+      s0 s2 XCHG	//  public_key stored_seqno cs _37 mode
+      SENDRAWMSG
+    }>	//  public_key stored_seqno cs
+    ENDS
+    INC	//  public_key _42
+    NEWC	//  public_key _42 _43
+    32 STU	//  public_key _45
+    256 STU	//  _47
+    ENDC	//  _48
+    c4 POP
+  }>
+  seqno PROC:<{
+    // 
+    c4 PUSH	//  _0
+    CTOS	//  _1
+    32 PLDU	//  _3
+  }>
+  get_public_key PROC:<{
+    // 
+    c4 PUSH	//  _1
+    CTOS	//  cs
+    32 LDU	//  _9 _8
+    NIP	//  cs
+    256 PLDU	//  _7
+  }>
+  get_customize PROC:<{
+    // 
+    42 PUSHINT	//  _0=42
+  }>
+}END>c
