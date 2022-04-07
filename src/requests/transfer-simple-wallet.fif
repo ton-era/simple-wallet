@@ -5,11 +5,11 @@
 // parse CLI
 
 def? $1 { @' $1 } { "1" } cond parse-int =: seqno  // seq no
-def? $2 { @' $2 } { "build/simple-wallet-transfer" } cond =: file-base  // file path prefix
-def? $3 { @' $3 } { "secrets/simple-wallet" } cond =: secret-base  // secret path prefix
-def? $4 { @' $4 } { "kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM" } cond =: from_address  // from (this) address
-def? $5 { @' $5 } { "EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH" } cond =: to_address  // target address
-def? $6 { @' $6 } { "30000000" } cond parse-int =: amount  // nanoton amount
+def? $2 { @' $2 } { "30000000" } cond parse-int =: amount  // nanoton amount
+def? $3 { @' $3 } { "build/simple-wallet-transfer" } cond =: file-base  // file path prefix
+def? $4 { @' $4 } { "../secrets/simple-wallet" } cond =: secret-base  // secret path prefix
+def? $5 { @' $5 } { "kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM" } cond =: from_address  // from (this) address
+def? $6 { @' $6 } { "EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH" } cond =: to_address  // target address
 
 from_address $>smca 0= abort"bad address"
 =: from_flags
@@ -23,6 +23,8 @@ to_address $>smca 0= abort"bad address"
 
 3 =: send_mode
 
+."Passed seqno: " seqno . cr cr
+
 // --------------------- Body: money transfer message + signing ---------------------
 <b
    seqno 32 u,     // wallet seq_no
@@ -30,7 +32,7 @@ to_address $>smca 0= abort"bad address"
    
    // body - send money from this wallet to another wallet
    <b
-      // int_msg_info, ihr_disabled, bounce, bounced, src_address (to be filled by server)
+      // int_msg_info, ihr_disabled, bounce, bounced, src_address (the latter will be filled by server)
       b{010000} s, 
 
       // to_address: address prefix, wc, address
@@ -38,12 +40,11 @@ to_address $>smca 0= abort"bad address"
       to_wc 8  i,
       to_addr 256 u,
 
-      // init coints + type
-      4 4 u,
-      amount 32 u,
+      // coints to transfer + type
+      amount Gram,
       b{0} s,
 
-      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104
+      // ihr_fee, fwd_fee, created_lt, created_at: 4 + 4 + 64 + 32 = 104 (to be filled by server)
       0 104 u,
 
       // no state init
@@ -56,7 +57,6 @@ to_address $>smca 0= abort"bad address"
    b> ref,
 b> =: internal_body
 
-
 // signing body
 secret-base +".pk" load-keypair nip =: wallet_pk
 internal_body hashu wallet_pk ed25519_sign_uint =: signature
@@ -65,7 +65,7 @@ internal_body hashu wallet_pk ed25519_sign_uint =: signature
 // --------------------- Final external query to Blockchain ---------------------
 
 <b
-   // header: prefix, none from _address (external msg)
+   // header: prefix, none from_address (external msg)
    b{1000} s,
 
    // from_address: address prefix, wc, address

@@ -5,7 +5,7 @@
 // parse CLI
 def? $1 { @' $1 } { "0" } cond parse-workchain-id =: wc  // contract workchain
 def? $2 { @' $2 } { "build/simple-wallet" } cond =: file-base  // file path prefix
-def? $3 { @' $3 } { "secrets/simple-wallet" } cond =: secret-base  // secret path prefix
+def? $3 { @' $3 } { "../secrets/simple-wallet" } cond =: secret-base  // secret path prefix
 
 // code
 "build/simple-wallet.fif" include =: contract_code

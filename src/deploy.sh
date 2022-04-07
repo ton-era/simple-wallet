@@ -15,4 +15,4 @@ rm $OUT_PATH/simple-wallet.fif
 $FUNC -o $OUT_PATH/simple-wallet.fif -SPA $STD_LIB simple-wallet.fc
 
 $FIFT_EXE_PATH -s $REQUESTS_PATH/new-simple-wallet.fif
-$FIFT_EXE_PATH -s $REQUESTS_PATH/transfer-simple-wallet.fif
+$FIFT_EXE_PATH -s $REQUESTS_PATH/transfer-simple-wallet.fif $1 $2
