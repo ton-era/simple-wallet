@@ -23,7 +23,8 @@ to_address $>smca 0= abort"bad address"
 
 3 =: send_mode
 
-."Passed seqno: " seqno . cr cr
+."Passed seqno: " seqno . cr
+."Passed amount (nt): " amount . cr cr
 
 // --------------------- Body: money transfer message + signing ---------------------
 <b
