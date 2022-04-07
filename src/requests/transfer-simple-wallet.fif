@@ -4,11 +4,11 @@
 
 // parse CLI
 
-def? $1 { @' $1 } { "build/simple-wallet-transfer" } cond =: file-base  // file path prefix
-def? $2 { @' $2 } { "secrets/simple-wallet" } cond =: secret-base  // secret path prefix
-def? $3 { @' $3 } { "kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM" } cond =: from_address  // from (this) address
-def? $4 { @' $4 } { "EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH" } cond =: to_address  // target address
-def? $5 { @' $5 } { "1" } cond parse-int =: seqno  // seq no
+def? $1 { @' $1 } { "1" } cond parse-int =: seqno  // seq no
+def? $2 { @' $2 } { "build/simple-wallet-transfer" } cond =: file-base  // file path prefix
+def? $3 { @' $3 } { "secrets/simple-wallet" } cond =: secret-base  // secret path prefix
+def? $4 { @' $4 } { "kQAWYHnDf8qmG9mC1CGD1Svf9_9OjWpDgL9EU2fgsTrfHyNM" } cond =: from_address  // from (this) address
+def? $5 { @' $5 } { "EQB1grTB2NIAbshA8C1Fu8EiSHiY_ZbTE-tRneTMKgdHAUJH" } cond =: to_address  // target address
 def? $6 { @' $6 } { "30000000" } cond parse-int =: amount  // nanoton amount
 
 from_address $>smca 0= abort"bad address"
