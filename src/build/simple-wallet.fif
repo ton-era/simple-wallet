@@ -62,6 +62,6 @@ PROGRAM{
   }>
   get_customize PROC:<{
     // 
-    42 PUSHINT	//  _0=42
+    9 PUSHINT	//  _0=9
   }>
 }END>c

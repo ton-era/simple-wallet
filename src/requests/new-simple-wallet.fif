@@ -34,7 +34,6 @@ state_init hashu wc swap 2dup 2constant smc_addr
 // initial message + signing
 <b 
    0 32 u, // first seqno = 0
-   0 7 u,  // first operation = 0 (init)
 b> =: init_message
 init_message ."Initial message: " <s csr. cr
 init_message hashu wallet_pk ed25519_sign_uint =: signature
@@ -43,7 +42,7 @@ init_message hashu wallet_pk ed25519_sign_uint =: signature
 <b 
    b{1000100} s, 
    smc_addr addr,      // { -rot 8 i, swap 256 u, } : addr  (see TonUtil.fif)
-   0 Gram, 
+   b{000010} s, 
    state_init <s s, 
    b{0} s,
    signature B,
