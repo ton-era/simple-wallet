@@ -37,5 +37,5 @@ int get_public_key() method_id {
 }
 
 int get_customize() method_id {
-  return 9;  ;; change this number to create different wallets addresses with the same private key
+  return 2022;  ;; change this number to create different wallets addresses with the same private key
 }
